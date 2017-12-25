@@ -1,0 +1,18 @@
+{
+    "name": "daverandom/network-primitives",
+    "description": "Primitive types for network programming",
+    "minimum-stability": "stable",
+    "license": "mit",
+    "authors": [
+        {
+            "name": "Chris Wright",
+            "email": "me@daverandom.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "DaveRandom\\Network\\": "src/" }
+    },
+    "require": {
+        "php": ">=7.1"
+    }
+}
