@@ -8,6 +8,7 @@ final class IPv4Address extends IPAddress
     private $octet2;
     private $octet3;
     private $octet4;
+    private $class;
 
     public static function createFromString(string $address): IPv4Address
     {
@@ -40,6 +41,8 @@ final class IPv4Address extends IPAddress
         $this->octet2 = $o2;
         $this->octet3 = $o3;
         $this->octet4 = $o4;
+
+        parent::__construct(\pack('C4', $o1, $o2, $o3, $o4));
     }
 
     public function getOctet1(): int
@@ -60,6 +63,56 @@ final class IPv4Address extends IPAddress
     public function getOctet4(): int
     {
         return $this->octet4;
+    }
+
+    public function getClass(): int
+    {
+        if (isset($this->class)) {
+            return $this->class;
+        }
+
+        if ($this->octet1 === 0 || $this->octet1 === 255) {
+            return $this->class = IPv4AddressClasses::RESERVED;
+        }
+
+        if (!($this->octet1 & 0b10000000)) {
+            return $this->class = IPv4AddressClasses::A;
+        }
+
+        if (!($this->octet1 & 0b01000000)) {
+            return $this->class = IPv4AddressClasses::B;
+        }
+
+        if (!($this->octet1 & 0b00100000)) {
+            return $this->class = IPv4AddressClasses::C;
+        }
+
+        if (!($this->octet1 & 0b00010000)) {
+            return $this->class = IPv4AddressClasses::D;
+        }
+
+        return $this->class = IPv4AddressClasses::E;
+    }
+
+    public function isLoopback(): bool
+    {
+        return $this->octet1 === 127;
+    }
+
+    public function isPrivate(): bool
+    {
+        switch ($this->getClass()) {
+            case IPv4AddressClasses::A: return $this->octet1 === 10;
+            case IPv4AddressClasses::B: return $this->octet1 === 172 && ($this->octet2 & 0b11110000) === 0b00010000;
+            case IPv4AddressClasses::C: return $this->octet2 === 192 && ($this->octet2 & 0b11110000) === 0b00010000;
+        }
+
+        return false;
+    }
+
+    public function isAssignable(): bool
+    {
+        return $this->getClass() < IPv4AddressClasses::D && $this->octet1 !== 0;
     }
 
     public function getProtocolFamily(): int

@@ -4,6 +4,13 @@ namespace DaveRandom\Network;
 
 abstract class IPAddress
 {
+    protected $binary;
+
+    protected function __construct(string $binary)
+    {
+        $this->binary = $binary;
+    }
+
     public static function parse(string $address): IPAddress
     {
         if (false === ($binary = @\inet_pton($address))) {
@@ -25,6 +32,11 @@ abstract class IPAddress
 
     abstract public function getProtocolFamily(): int;
     abstract public function __toString(): string;
+
+    public function toBinary(): string
+    {
+        return $this->binary;
+    }
 
     public function __debugInfo(): array
     {
