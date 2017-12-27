@@ -13,8 +13,6 @@ final class IPv6Address extends IPAddress
     private $hextet7;
     private $hextet8;
 
-    private $string;
-
     public static function createFromString(string $address): IPv6Address
     {
         if (false === ($binary = \inet_pton($address)) || \strlen($binary) !== 16) {
@@ -68,6 +66,12 @@ final class IPv6Address extends IPAddress
         $this->hextet6 = $h6;
         $this->hextet7 = $h7;
         $this->hextet8 = $h8;
+
+        parent::__construct(\pack(
+            'n8',
+            $this->hextet1, $this->hextet2, $this->hextet3, $this->hextet4,
+            $this->hextet5, $this->hextet6, $this->hextet7, $this->hextet8
+        ));
     }
 
     public function getHextet1(): int
@@ -117,10 +121,6 @@ final class IPv6Address extends IPAddress
 
     public function __toString(): string
     {
-        return $this->string ?? $this->string = \inet_ntop(\pack(
-            'n8',
-            $this->hextet1, $this->hextet2, $this->hextet3, $this->hextet4,
-            $this->hextet5, $this->hextet6, $this->hextet7, $this->hextet8
-        ));
+        return \inet_ntop($this->binary);
     }
 }
