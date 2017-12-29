@@ -31,9 +31,12 @@ final class IPEndpoint
         return $this->address->getProtocolFamily();
     }
 
-    public function equals(IPEndpoint $other): bool
+    public function equals(?IPEndpoint $other): bool
     {
-        return (string)$other === (string)$this;
+        return $other !== null
+            && $this->port === $other->port
+            && $this->address->equals($other->address)
+        ;
     }
 
     public function __toString()

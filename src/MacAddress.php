@@ -86,6 +86,18 @@ final class MacAddress
         return $this->octet6;
     }
 
+    public function equals(?MacAddress $other): bool
+    {
+        return $other !== null
+            && $this->octet1 === $other->octet1
+            && $this->octet2 === $other->octet2
+            && $this->octet3 === $other->octet3
+            && $this->octet4 === $other->octet4
+            && $this->octet5 === $other->octet5
+            && $this->octet6 === $other->octet6
+        ;
+    }
+
     public function __toString(): string
     {
         return \sprintf(

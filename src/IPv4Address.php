@@ -120,6 +120,16 @@ final class IPv4Address extends IPAddress
         return \STREAM_PF_INET;
     }
 
+    public function equals(?IPAddress $other): bool
+    {
+        return $other instanceof IPv4Address
+            && $this->octet1 === $other->octet1
+            && $this->octet2 === $other->octet2
+            && $this->octet3 === $other->octet3
+            && $this->octet4 === $other->octet4
+        ;
+    }
+
     public function __toString(): string
     {
         return \sprintf('%d.%d.%d.%d', $this->octet1, $this->octet2, $this->octet3, $this->octet4);

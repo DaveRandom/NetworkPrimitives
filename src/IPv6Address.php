@@ -119,6 +119,20 @@ final class IPv6Address extends IPAddress
         return \STREAM_PF_INET6;
     }
 
+    public function equals(?IPAddress $other): bool
+    {
+        return $other instanceof IPv6Address
+            && $this->hextet1 === $other->hextet1
+            && $this->hextet2 === $other->hextet2
+            && $this->hextet3 === $other->hextet3
+            && $this->hextet4 === $other->hextet4
+            && $this->hextet5 === $other->hextet5
+            && $this->hextet6 === $other->hextet6
+            && $this->hextet7 === $other->hextet7
+            && $this->hextet8 === $other->hextet8
+        ;
+    }
+
     public function __toString(): string
     {
         return \inet_ntop($this->binary);

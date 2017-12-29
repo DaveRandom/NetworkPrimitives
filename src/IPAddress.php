@@ -31,6 +31,7 @@ abstract class IPAddress
     }
 
     abstract public function getProtocolFamily(): int;
+    abstract public function equals(?IPAddress $other): bool;
     abstract public function __toString(): string;
 
     public function toBinary(): string
