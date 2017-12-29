@@ -26,9 +26,14 @@ final class IPEndpoint
         $this->port = $port;
     }
 
-    public function getProtocolFamily(): int
+    public function getAddress(): IPAddress
     {
-        return $this->address->getProtocolFamily();
+        return $this->address;
+    }
+
+    public function getPort(): int
+    {
+        return $this->port;
     }
 
     public function equals(?IPEndpoint $other): bool
