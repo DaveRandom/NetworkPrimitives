@@ -119,7 +119,7 @@ final class IPv6Address extends IPAddress
         return \STREAM_PF_INET6;
     }
 
-    public function equals(?IPAddress $other): bool
+    public function equals(IPAddress $other): bool
     {
         return $other instanceof IPv6Address
             && $this->hextet1 === $other->hextet1

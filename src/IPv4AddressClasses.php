@@ -8,14 +8,14 @@
 
 namespace DaveRandom\Network;
 
-final class IPv4AddressClasses
-{
-    public const A = 0;
-    public const B = 1;
-    public const C = 2;
-    public const D = 3;
-    public const E = 4;
-    public const RESERVED = \PHP_INT_MAX;
+use DaveRandom\Enum\Enum;
 
-    private function __construct() { }
+final class IPv4AddressClasses extends Enum
+{
+    const A = 0;
+    const B = 1;
+    const C = 2;
+    const D = 3;
+    const E = 4;
+    const RESERVED = \PHP_INT_MAX;
 }

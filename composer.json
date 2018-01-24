@@ -2,7 +2,7 @@
     "name": "daverandom/network-primitives",
     "description": "Primitive types for network programming",
     "minimum-stability": "stable",
-    "license": "mit",
+    "license": "MIT",
     "authors": [
         {
             "name": "Chris Wright",
@@ -13,6 +13,7 @@
         "psr-4": { "DaveRandom\\Network\\": "src/" }
     },
     "require": {
-        "php": ">=7.1"
+        "php": ">=7.0",
+        "daverandom/enum": "^1"
     }
 }

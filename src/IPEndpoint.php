@@ -36,10 +36,9 @@ final class IPEndpoint
         return $this->port;
     }
 
-    public function equals(?IPEndpoint $other): bool
+    public function equals(IPEndpoint $other): bool
     {
-        return $other !== null
-            && $this->port === $other->port
+        return $this->port === $other->port
             && $this->address->equals($other->address)
         ;
     }
