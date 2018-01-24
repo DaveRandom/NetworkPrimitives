@@ -6,7 +6,7 @@ final class DomainName
 {
     private $labels = [];
 
-    public function createFromString(string $name): DomainName
+    public static function createFromString(string $name): DomainName
     {
         return new DomainName(\explode('.', $name));
     }
