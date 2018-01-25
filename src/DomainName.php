@@ -11,8 +11,13 @@ final class DomainName
         return new DomainName(\explode('.', $name));
     }
 
-    public function __construct(array $labels)
+    public function __construct(array $labels, bool $validate = true)
     {
+        if (!$validate) {
+            $this->labels = $labels;
+            return;
+        }
+
         foreach ($labels as $label) {
             $label = \strtolower((string)$label);
 
