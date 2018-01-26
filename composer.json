@@ -1,22 +1,23 @@
 {
-    "name": "daverandom/network-primitives",
-    "description": "Primitive types for network programming",
-    "minimum-stability": "stable",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Chris Wright",
-            "email": "me@daverandom.com"
-        }
-    ],
-    "autoload": {
-        "psr-4": { "DaveRandom\\Network\\": "src/" }
-    },
-    "require": {
-        "php": ">=7.0",
-        "daverandom/enum": "^1"
-    },
-    "suggest": {
-        "ext-intl": "Required for IDN support"
+  "name": "daverandom/network-primitives",
+  "description": "Primitive types for network programming",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Chris Wright",
+      "email": "me@daverandom.com"
     }
+  ],
+  "autoload": {
+    "psr-4": { "DaveRandom\\Network\\": "src/" },
+    "files": ["src/functions.php"]
+  },
+  "require": {
+    "php": ">=7.0",
+    "daverandom/enum": "^1"
+  },
+  "suggest": {
+    "ext-intl": "Required for IDN support"
+  }
 }
