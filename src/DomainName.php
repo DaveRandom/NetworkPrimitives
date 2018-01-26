@@ -6,22 +6,17 @@ final class DomainName
 {
     private $labels = [];
 
-    public static function createFromString(string $name): DomainName
+    public static function createFromString(string $name, bool $strict = true): DomainName
     {
-        return new DomainName(\explode('.', $name));
+        return new DomainName(\explode('.', $name), $strict);
     }
 
-    public function __construct(array $labels, bool $validate = true)
+    public function __construct(array $labels, bool $strict = true)
     {
-        if (!$validate) {
-            $this->labels = $labels;
-            return;
-        }
-
         foreach ($labels as $label) {
-            $label = \strtolower((string)$label);
+            $label = normalize_dns_name((string)$label);
 
-            if (!\preg_match('/^[a-z0-9](?:[a-z0-9\-]*[a-z0-9])?$/', $label)) {
+            if ($strict && !\preg_match('/^[a-z0-9](?:[a-z0-9\-]*[a-z0-9])?$/', $label)) {
                 throw new \InvalidArgumentException("Invalid domain name label: {$label}");
             }
 

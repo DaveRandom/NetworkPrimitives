@@ -15,5 +15,8 @@
     "require": {
         "php": ">=7.0",
         "daverandom/enum": "^1"
+    },
+    "suggest": {
+        "ext-intl": "Required for IDN support"
     }
 }
