@@ -29,13 +29,18 @@ final class DomainName
         return $this->labels;
     }
 
+    public function equals(DomainName $other): bool
+    {
+        return $this->labels === $other->labels;
+    }
+
     public function __toString(): string
     {
         return \implode('.', $this->labels);
     }
 
-    public function equals(DomainName $other): bool
+    public function __debugInfo(): array
     {
-        return $this->labels === $other->labels;
+        return ['name' => $this->__toString()];
     }
 }

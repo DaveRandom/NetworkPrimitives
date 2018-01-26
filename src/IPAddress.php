@@ -41,6 +41,6 @@ abstract class IPAddress
 
     public function __debugInfo(): array
     {
-        return ['string' => $this->__toString()];
+        return ['address' => $this->__toString()];
     }
 }
