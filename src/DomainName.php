@@ -2,9 +2,9 @@
 
 namespace DaveRandom\Network;
 
-use NetworkInterop\DomainName as DomainNameInterface;
+use NetworkInterop\Host;
 
-final class DomainName implements DomainNameInterface
+final class DomainName implements \NetworkInterop\DomainName
 {
     const STRICT = 0b01;
 
@@ -62,9 +62,10 @@ final class DomainName implements DomainNameInterface
     /**
      * @inheritdoc
      */
-    public function equals(DomainNameInterface $other): bool
+    public function equals(Host $other): bool
     {
-        return $other->getLabels() === $this->labels;
+        return $other instanceof \NetworkInterop\DomainName
+            && $other->getLabels() === $this->labels;
     }
 
     /**

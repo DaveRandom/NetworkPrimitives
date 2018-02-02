@@ -2,6 +2,8 @@
 
 namespace DaveRandom\Network;
 
+use NetworkInterop\Host;
+
 final class IPv4Address extends IPAddress implements \NetworkInterop\IPv4Address
 {
     private $octets;
@@ -115,7 +117,7 @@ final class IPv4Address extends IPAddress implements \NetworkInterop\IPv4Address
     /**
      * @inheritdoc
      */
-    public function getProtocolFamily(): int
+    public function getProtocolNumber(): int
     {
         return \STREAM_PF_INET;
     }
@@ -123,9 +125,17 @@ final class IPv4Address extends IPAddress implements \NetworkInterop\IPv4Address
     /**
      * @inheritdoc
      */
-    public function equals(\NetworkInterop\IPAddress $other): bool
+    public function equals(Host $other): bool
     {
-        return $other->toBinary() === $this->binary;
+        if ($other instanceof \NetworkInterop\IPv4Address) {
+            return $other->toBinary() === $this->binary;
+        }
+
+        if ($other instanceof \NetworkInterop\IPv6Address) {
+            return $other->toBinary() === "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff{$this->binary}";
+        }
+
+        return false;
     }
 
     /**

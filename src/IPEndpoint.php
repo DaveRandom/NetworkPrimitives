@@ -2,9 +2,11 @@
 
 namespace DaveRandom\Network;
 
+use NetworkInterop\Host;
+use NetworkInterop\InternetEndpoint;
 use NetworkInterop\IPAddress;
 
-final class IPEndpoint extends Endpoint implements \NetworkInterop\IPEndpoint
+final class IPEndpoint extends Endpoint implements InternetEndpoint
 {
     private $address;
 
@@ -66,7 +68,10 @@ final class IPEndpoint extends Endpoint implements \NetworkInterop\IPEndpoint
         return new self($address, $port);
     }
 
-    public function getAddress(): IPAddress
+    /**
+     * @return IPAddress
+     */
+    public function getHost(): Host
     {
         return $this->address;
     }
@@ -78,9 +83,9 @@ final class IPEndpoint extends Endpoint implements \NetworkInterop\IPEndpoint
 
     public function equals(\NetworkInterop\Endpoint $other): bool
     {
-        return $other instanceof \NetworkInterop\IPEndpoint
+        return $other instanceof InternetEndpoint
             && $other->getPort() === $this->port
-            && $other->getAddress()->equals($this->address)
+            && $other->getHost()->equals($this->address)
         ;
     }
 

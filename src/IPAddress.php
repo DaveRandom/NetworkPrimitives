@@ -2,6 +2,8 @@
 
 namespace DaveRandom\Network;
 
+use NetworkInterop\Host;
+
 abstract class IPAddress implements \NetworkInterop\IPAddress
 {
     /**
@@ -37,12 +39,13 @@ abstract class IPAddress implements \NetworkInterop\IPAddress
     /**
      * @inheritdoc
      */
-    abstract public function getProtocolFamily(): int;
+    abstract public function getProtocolNumber(): int;
+
 
     /**
      * @inheritdoc
      */
-    abstract public function equals(\NetworkInterop\IPAddress $other): bool;
+    abstract public function equals(Host $other): bool;
 
     /**
      * @inheritdoc

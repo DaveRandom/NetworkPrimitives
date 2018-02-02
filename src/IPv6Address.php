@@ -2,6 +2,8 @@
 
 namespace DaveRandom\Network;
 
+use NetworkInterop\Host;
+
 final class IPv6Address extends IPAddress implements \NetworkInterop\IPv6Address
 {
     private $hextets;
@@ -67,7 +69,7 @@ final class IPv6Address extends IPAddress implements \NetworkInterop\IPv6Address
     /**
      * @inheritdoc
      */
-    public function getProtocolFamily(): int
+    public function getProtocolNumber(): int
     {
         return \STREAM_PF_INET6;
     }
@@ -75,9 +77,17 @@ final class IPv6Address extends IPAddress implements \NetworkInterop\IPv6Address
     /**
      * @inheritdoc
      */
-    public function equals(\NetworkInterop\IPAddress $other): bool
+    public function equals(Host $other): bool
     {
-        return $other->toBinary() === $this->binary;
+        if ($other instanceof \NetworkInterop\IPv6Address) {
+            return $other->toBinary() === $this->binary;
+        }
+
+        if ($other instanceof \NetworkInterop\IPv4Address) {
+            return $this->binary === "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff{$other->toBinary()}";
+        }
+
+        return false;
     }
 
     /**

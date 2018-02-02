@@ -2,6 +2,11 @@
 
 namespace NetworkInterop;
 
+/**
+ * Represents a single 48-bit MAC address
+ *
+ * Two MAC addresses are considered equivalent if their binary representations are identical.
+ */
 interface MacAddress
 {
     /**

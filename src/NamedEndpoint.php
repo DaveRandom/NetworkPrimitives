@@ -2,7 +2,10 @@
 
 namespace DaveRandom\Network;
 
-final class NamedEndpoint extends Endpoint implements \NetworkInterop\NamedEndpoint
+use NetworkInterop\Host;
+use NetworkInterop\InternetEndpoint;
+
+final class NamedEndpoint extends Endpoint implements InternetEndpoint
 {
     private $hostName;
 
@@ -58,7 +61,7 @@ final class NamedEndpoint extends Endpoint implements \NetworkInterop\NamedEndpo
     /**
      * @inheritdoc
      */
-    public function getHostName(): \NetworkInterop\DomainName
+    public function getHost(): Host
     {
         return $this->hostName;
     }
@@ -68,9 +71,9 @@ final class NamedEndpoint extends Endpoint implements \NetworkInterop\NamedEndpo
      */
     public function equals(\NetworkInterop\Endpoint $other): bool
     {
-        return $other instanceof NamedEndpoint
+        return $other instanceof InternetEndpoint
             && $other->getPort() === $this->port
-            && $other->getHostName()->equals($this->hostName);
+            && $other->getHost()->equals($this->hostName);
     }
 
     /**

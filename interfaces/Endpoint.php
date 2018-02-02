@@ -2,18 +2,15 @@
 
 namespace NetworkInterop;
 
+/**
+ * Represents an endpoint to which an attempt may be made to establish a socket connection
+ *
+ * Two Endpoints are considered equivalent if they are of the same sub-type. A sub-type may impose additional rules.
+ */
 interface Endpoint
 {
     /**
-     * Returns the port number as an integer in the range 0 - 65535
-     *
-     * @return int
-     */
-    function getPort(): int;
-
-    /**
-     * Compares two endpoints and determines whether they are equivalent. The rules for determining equivalence are not
-     * defined and are left to the implementation.
+     * Compares two endpoints and determines whether they are equivalent.
      *
      * @param Endpoint $other
      * @return bool
