@@ -2,16 +2,12 @@
 
 namespace DaveRandom\Network;
 
-final class MacAddress
+final class MacAddress implements \NetworkInterop\MacAddress
 {
-    private $octet1;
-    private $octet2;
-    private $octet3;
-    private $octet4;
-    private $octet5;
-    private $octet6;
+    private $binary;
+    private $octets;
 
-    public static function createFromString(string $address): MacAddress
+    public static function fromString(string $address): self
     {
         $stripped = \preg_replace('/[^0-9a-f]+/i', '', $address);
 
@@ -19,89 +15,75 @@ final class MacAddress
             throw new \InvalidArgumentException("Cannot parse '{$address}' as a valid MAC address");
         }
 
-        return new MacAddress(...\array_map('hexdec', \str_split($stripped, 2)));
+        return new self(\pack('H12', $stripped));
     }
 
-    public function __construct(int $o1, int $o2, int $o3, int $o4, int $o5, int $o6)
+    public static function fromOctets(int $o1, int $o2, int $o3, int $o4, int $o5, int $o6): self
     {
-        if ($o1 < 0 || $o1 > 255) {
-            throw new \OutOfRangeException("Value '{$o1}' for octet 1 outside range of allowable values 0 - 255");
+        foreach ([$o1, $o2, $o3, $o4, $o5, $o6] as $i => $octet) {
+            if ($octet < 0 || $octet > 255) {
+                throw new \OutOfRangeException(\sprintf(
+                    "Value %d for octet %d outside range of allowable values 0 - 255",
+                    $octet, $i + 1
+                ));
+            }
         }
 
-        if ($o2 < 0 || $o2 > 255) {
-            throw new \OutOfRangeException("Value '{$o2}' for octet 2 outside range of allowable values 0 - 255");
+        return new self(\pack('C6', $o1, $o2, $o3, $o4, $o5, $o6));
+    }
+
+    public static function fromBinary(string $binary): self
+    {
+        if (\strlen($binary) !== 6) {
+            throw new \InvalidArgumentException(
+                "Binary representation of an MAC address must be 6 bytes, got " . \strlen($binary)
+            );
         }
 
-        if ($o3 < 0 || $o3 > 255) {
-            throw new \OutOfRangeException("Value '{$o3}' for octet 3 outside range of allowable values 0 - 255");
+        return new self($binary);
+    }
+
+    private function __construct(string $binary)
+    {
+        $this->binary = $binary;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOctets(): array
+    {
+        if (isset($this->octets)) {
+            return $this->octets;
         }
 
-        if ($o4 < 0 || $o4 > 255) {
-            throw new \OutOfRangeException("Value '{$o4}' for octet 4 outside range of allowable values 0 - 255");
-        }
-
-        if ($o5 < 0 || $o5 > 255) {
-            throw new \OutOfRangeException("Value '{$o5}' for octet 5 outside range of allowable values 0 - 255");
-        }
-
-        if ($o6 < 0 || $o6 > 255) {
-            throw new \OutOfRangeException("Value '{$o6}' for octet 6 outside range of allowable values 0 - 255");
-        }
-
-        $this->octet1 = $o1;
-        $this->octet2 = $o2;
-        $this->octet3 = $o3;
-        $this->octet4 = $o4;
-        $this->octet5 = $o5;
-        $this->octet6 = $o6;
+        return $this->octets = \array_values(\unpack('C6', $this->binary));
     }
 
-    public function getOctet1(): int
+    /**
+     * @inheritdoc
+     */
+    public function toBinary(): string
     {
-        return $this->octet1;
+        return $this->binary;
     }
 
-    public function getOctet2(): int
+    /**
+     * @inheritdoc
+     */
+    public function equals(\NetworkInterop\MacAddress $other): bool
     {
-        return $this->octet2;
+        return $other->toBinary() === $this->binary;
     }
 
-    public function getOctet3(): int
-    {
-        return $this->octet3;
-    }
-
-    public function getOctet4(): int
-    {
-        return $this->octet4;
-    }
-
-    public function getOctet5(): int
-    {
-        return $this->octet5;
-    }
-
-    public function getOctet6(): int
-    {
-        return $this->octet6;
-    }
-
-    public function equals(MacAddress $other): bool
-    {
-        return $this->octet1 === $other->octet1
-            && $this->octet2 === $other->octet2
-            && $this->octet3 === $other->octet3
-            && $this->octet4 === $other->octet4
-            && $this->octet5 === $other->octet5
-            && $this->octet6 === $other->octet6
-        ;
-    }
-
+    /**
+     * @inheritdoc
+     */
     public function __toString(): string
     {
         return \sprintf(
             '%02x:%02x:%02x:%02x:%02x:%02x',
-            $this->octet1, $this->octet2, $this->octet3, $this->octet4, $this->octet5, $this->octet6
+            ...$this->getOctets()
         );
     }
 

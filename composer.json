@@ -10,7 +10,10 @@
     }
   ],
   "autoload": {
-    "psr-4": { "DaveRandom\\Network\\": "src/" },
+    "psr-4": {
+      "DaveRandom\\Network\\": "src/",
+      "NetworkInterop\\": "interfaces/"
+    },
     "files": ["src/functions.php"]
   },
   "require": {

@@ -2,38 +2,74 @@
 
 namespace DaveRandom\Network;
 
-final class DomainName
-{
-    private $labels = [];
+use NetworkInterop\DomainName as DomainNameInterface;
 
-    public static function createFromString(string $name, bool $strict = true): DomainName
+final class DomainName implements DomainNameInterface
+{
+    const STRICT = 0b01;
+
+    private $labels;
+
+    private function __construct(array $labels)
     {
-        return new DomainName(\explode('.', $name), $strict);
+        $this->labels = $labels;
     }
 
-    public function __construct(array $labels, bool $strict = true)
+    /**
+     * @throws FormatException
+     */
+    public static function fromString(string $name, int $flags = self::STRICT): self
     {
+        $labels = \explode('.', $name);
+
+        // Remove the last label if it is empty (i.e. root zone)
+        if (\end($labels) === '') {
+            \array_pop($labels);
+        }
+
+        return self::fromArray($labels, $flags);
+    }
+
+    /**
+     * @throws FormatException
+     */
+    public static function fromArray(array $labels, int $flags = self::STRICT)
+    {
+        $validated = [];
+        $strict = $flags & self::STRICT;
+
         foreach ($labels as $label) {
             $label = normalize_dns_name((string)$label);
 
             if ($strict && !\preg_match('/^[a-z0-9](?:[a-z0-9\-]*[a-z0-9])?$/', $label)) {
-                throw new \InvalidArgumentException("Invalid domain name label: {$label}");
+                throw new FormatException("Invalid domain name label: {$label}");
             }
 
-            $this->labels[] = $label;
+            $validated[] = $label;
         }
+
+        return new self($labels);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getLabels(): array
     {
         return $this->labels;
     }
 
-    public function equals(DomainName $other): bool
+    /**
+     * @inheritdoc
+     */
+    public function equals(DomainNameInterface $other): bool
     {
-        return $this->labels === $other->labels;
+        return $other->getLabels() === $this->labels;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function __toString(): string
     {
         return \implode('.', $this->labels);

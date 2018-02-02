@@ -2,28 +2,68 @@
 
 namespace DaveRandom\Network;
 
-final class IPEndpoint
+use NetworkInterop\IPAddress;
+
+final class IPEndpoint extends Endpoint implements \NetworkInterop\IPEndpoint
 {
     private $address;
-    private $port;
 
-    public static function parse(string $endpoint): IPEndpoint
+    protected function __construct(IPAddress $address, int $port)
     {
-        if (2 === \count($parts = \explode(':', $endpoint))) {
-            return new IPEndpoint(IPv4Address::parse($parts[0]), (int)$parts[1]);
-        }
+        parent::__construct($port);
 
-        if (\preg_match('/^\[([^\]]+)]:([0-9]+)/', $endpoint, $parts)) {
-            return new IPEndpoint(IPv6Address::parse($parts[1]), (int)$parts[2]);
-        }
-
-        throw new \InvalidArgumentException("Cannot parse '{$endpoint}' as a valid IP endpoint");
+        $this->address = $address;
     }
 
-    public function __construct(IPAddress $address, int $port)
+    /**
+     * @throws FormatException
+     */
+    public static function fromString(string $endpoint): self
     {
-        $this->address = $address;
-        $this->port = $port;
+        if (2 === \count($parts = \explode(':', $endpoint))) {
+            try {
+                $address = IPv4Address::fromString($parts[0]);
+            } catch (FormatException $e) {
+                throw new FormatException('Cannot parse %s as a valid IP endpoint: Invalid address', $endpoint);
+            }
+
+            $port = (int)$parts[1];
+        } else if (\preg_match('/^\[([^\]]+)]:([0-9]+)/', $endpoint, $match)) {
+            try {
+                $address = IPv6Address::fromString($match[1]);
+            } catch (FormatException $e) {
+                throw new FormatException('Cannot parse %s as a valid IP endpoint: Invalid address', $endpoint);
+            }
+
+            $port = (int)$match[2];
+        } else {
+            throw new FormatException('Cannot parse %s as a valid IP endpoint: Unknown format', $endpoint);
+        }
+
+        if ($port < 0 || $port > 65535) {
+            throw new FormatException(
+                "Cannot parse %s as a valid IP endpoint: Port number %d outside range of allowable values 0 - 65535",
+                $endpoint, $port
+            );
+        }
+
+        return new self($address, $port);
+
+    }
+
+    /**
+     * @throws FormatException
+     */
+    public function fromAddressAndPort(IPAddress $address, int $port): self
+    {
+        if ($port < 0 || $port > 65535) {
+            throw new FormatException(
+                "Cannot create IP endpoint: Port number %d outside range of allowable values 0 - 65535",
+                $port
+            );
+        }
+
+        return new self($address, $port);
     }
 
     public function getAddress(): IPAddress
@@ -36,15 +76,20 @@ final class IPEndpoint
         return $this->port;
     }
 
-    public function equals(IPEndpoint $other): bool
+    public function equals(\NetworkInterop\Endpoint $other): bool
     {
-        return $this->port === $other->port
-            && $this->address->equals($other->address)
+        return $other instanceof \NetworkInterop\IPEndpoint
+            && $other->getPort() === $this->port
+            && $other->getAddress()->equals($this->address)
         ;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return ($this->address instanceof IPv6Address ? "[{$this->address}]" : $this->address) . ":{$this->port}";
+        return \sprintf(
+            '%s:%d',
+            $this->address instanceof \NetworkInterop\IPv6Address ? "[{$this->address}]" : $this->address,
+            $this->port
+        );
     }
 }

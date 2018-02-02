@@ -2,137 +2,87 @@
 
 namespace DaveRandom\Network;
 
-final class IPv6Address extends IPAddress
+final class IPv6Address extends IPAddress implements \NetworkInterop\IPv6Address
 {
-    private $hextet1;
-    private $hextet2;
-    private $hextet3;
-    private $hextet4;
-    private $hextet5;
-    private $hextet6;
-    private $hextet7;
-    private $hextet8;
+    private $hextets;
 
-    public static function createFromString(string $address): IPv6Address
+    protected function __construct(string $binary)
+    {
+        parent::__construct($binary);
+
+        $this->hextets = \array_values(\unpack('n8', $binary));
+    }
+
+    /**
+     * @throws FormatException
+     */
+    public static function fromString(string $address): self
     {
         if (false === ($binary = \inet_pton($address)) || \strlen($binary) !== 16) {
-            throw new \InvalidArgumentException("Cannot parse '{$address}' as a valid IPv6 address");
+            throw new FormatException("Cannot parse %s as a valid IPv6 address", $address);
         }
 
-        return new IPv6Address(...\array_map(function($hextet) {
-            return \unpack('n', $hextet)[1];
-        } , \str_split($binary, 2)));
+        return new self($binary);
     }
 
-    public function __construct(int $h1, int $h2, int $h3, int $h4, int $h5, int $h6, int $h7, int $h8)
+    /**
+     * @throws FormatException
+     */
+    public static function fromHextets(int $h1, int $h2, int $h3, int $h4, int $h5, int $h6, int $h7, int $h8): self
     {
-        if ($h1 < 0 || $h1 > 65535) {
-            throw new \OutOfRangeException("Value '{$h1}' for hextet 1 outside range of allowable values 0 - 65535");
+        foreach ([$h1, $h2, $h3, $h4, $h5, $h6, $h7, $h8] as $i => $hextet) {
+            if ($hextet < 0 || $hextet > 65535) {
+                throw new FormatException(
+                    "Value %d for hextet %d outside range of allowable values 0 - 65535",
+                    $hextet, $i + 1
+                );
+            }
         }
 
-        if ($h2 < 0 || $h2 > 65535) {
-            throw new \OutOfRangeException("Value '{$h2}' for hextet 2 outside range of allowable values 0 - 65535");
+        return new self(\pack('n8', $h1, $h2, $h3, $h4, $h5, $h6, $h7, $h8));
+    }
+
+    /**
+     * @throws FormatException
+     */
+    public static function fromBinary(string $binary): self
+    {
+        if (\strlen($binary) !== 16) {
+            throw new FormatException(
+                "Binary representation of an IPv6 address must be 16 bytes, got %d", \strlen($binary)
+            );
         }
 
-        if ($h3 < 0 || $h3 > 65535) {
-            throw new \OutOfRangeException("Value '{$h3}' for hextet 3 outside range of allowable values 0 - 65535");
-        }
-
-        if ($h4 < 0 || $h4 > 65535) {
-            throw new \OutOfRangeException("Value '{$h4}' for hextet 4 outside range of allowable values 0 - 65535");
-        }
-
-        if ($h5 < 0 || $h5 > 65535) {
-            throw new \OutOfRangeException("Value '{$h5}' for hextet 5 outside range of allowable values 0 - 65535");
-        }
-
-        if ($h6 < 0 || $h6 > 65535) {
-            throw new \OutOfRangeException("Value '{$h6}' for hextet 6 outside range of allowable values 0 - 65535");
-        }
-
-        if ($h7 < 0 || $h7 > 65535) {
-            throw new \OutOfRangeException("Value '{$h7}' for hextet 7 outside range of allowable values 0 - 65535");
-        }
-
-        if ($h8 < 0 || $h8 > 65535) {
-            throw new \OutOfRangeException("Value '{$h8}' for hextet 8 outside range of allowable values 0 - 65535");
-        }
-
-        $this->hextet1 = $h1;
-        $this->hextet2 = $h2;
-        $this->hextet3 = $h3;
-        $this->hextet4 = $h4;
-        $this->hextet5 = $h5;
-        $this->hextet6 = $h6;
-        $this->hextet7 = $h7;
-        $this->hextet8 = $h8;
-
-        parent::__construct(\pack(
-            'n8',
-            $this->hextet1, $this->hextet2, $this->hextet3, $this->hextet4,
-            $this->hextet5, $this->hextet6, $this->hextet7, $this->hextet8
-        ));
+        return new self($binary);
     }
 
-    public function getHextet1(): int
+    /**
+     * @inheritdoc
+     */
+    public function getHextets(): array
     {
-        return $this->hextet1;
+        return $this->hextets;
     }
 
-    public function getHextet2(): int
-    {
-        return $this->hextet2;
-    }
-
-    public function getHextet3(): int
-    {
-        return $this->hextet3;
-    }
-
-    public function getHextet4(): int
-    {
-        return $this->hextet4;
-    }
-
-    public function getHextet5(): int
-    {
-        return $this->hextet1;
-    }
-
-    public function getHextet6(): int
-    {
-        return $this->hextet2;
-    }
-
-    public function getHextet7(): int
-    {
-        return $this->hextet3;
-    }
-
-    public function getHextet8(): int
-    {
-        return $this->hextet4;
-    }
-
+    /**
+     * @inheritdoc
+     */
     public function getProtocolFamily(): int
     {
         return \STREAM_PF_INET6;
     }
 
-    public function equals(IPAddress $other): bool
+    /**
+     * @inheritdoc
+     */
+    public function equals(\NetworkInterop\IPAddress $other): bool
     {
-        return $other instanceof IPv6Address
-            && $this->hextet1 === $other->hextet1
-            && $this->hextet2 === $other->hextet2
-            && $this->hextet3 === $other->hextet3
-            && $this->hextet4 === $other->hextet4
-            && $this->hextet5 === $other->hextet5
-            && $this->hextet6 === $other->hextet6
-            && $this->hextet7 === $other->hextet7
-            && $this->hextet8 === $other->hextet8
-        ;
+        return $other->toBinary() === $this->binary;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function __toString(): string
     {
         return \inet_ntop($this->binary);

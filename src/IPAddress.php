@@ -2,41 +2,62 @@
 
 namespace DaveRandom\Network;
 
-abstract class IPAddress
+abstract class IPAddress implements \NetworkInterop\IPAddress
 {
+    /**
+     * @internal
+     */
     protected $binary;
 
+    /**
+     * @internal
+     */
     protected function __construct(string $binary)
     {
         $this->binary = $binary;
     }
 
+    /**
+     * @throws FormatException
+     */
     public static function parse(string $address): IPAddress
     {
         if (false === ($binary = @\inet_pton($address))) {
-            throw new \InvalidArgumentException("Cannot parse '{$address}' as a valid IP address");
+            throw new FormatException("Cannot parse %s as a valid IP address", $address);
         }
 
         switch (\strlen($binary)) {
-            case 4:
-                return new IPv4Address(...\array_map('ord', \str_split($binary, 1)));
-
-            case 16:
-                return new IPv6Address(...\array_map(function($hextet) {
-                    return \unpack('n', $hextet)[1];
-                } , \str_split($binary, 2)));
+            case 4:  return new IPv4Address($binary);
+            case 16: return new IPv6Address($binary);
         }
 
-        throw new \InvalidArgumentException("Unknown IP address type: {$address}");
+        throw new FormatException("Unknown IP address type: %s", $address);
     }
 
+    /**
+     * @inheritdoc
+     */
     abstract public function getProtocolFamily(): int;
-    abstract public function equals(IPAddress $other): bool;
-    abstract public function __toString(): string;
 
+    /**
+     * @inheritdoc
+     */
+    abstract public function equals(\NetworkInterop\IPAddress $other): bool;
+
+    /**
+     * @inheritdoc
+     */
     public function toBinary(): string
     {
         return $this->binary;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __toString(): string
+    {
+        return \inet_ntop($this->binary);
     }
 
     public function __debugInfo(): array

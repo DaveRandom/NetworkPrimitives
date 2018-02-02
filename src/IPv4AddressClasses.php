@@ -1,10 +1,4 @@
 <?php declare(strict_types=1);
-/**
- * Created by PhpStorm.
- * User: chris.wright
- * Date: 27/12/2017
- * Time: 19:48
- */
 
 namespace DaveRandom\Network;
 
